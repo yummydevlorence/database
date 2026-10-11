@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quazar — Smart Shopping</title>
+  <meta name="description" content="Quazar — E-Commerce Platform with Demand Forecasting">
+  <link rel="icon" type="image/png" href="images/quazar-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    /* Apply saved theme before first paint (prevents a white flash in dark mode) */
+    (function () {
+      var t = localStorage.getItem('nx_theme');
+      if (!t) t = 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body>
+  <section class="auth-screen" id="authScreen" aria-label="Sign in to Quazar" role="dialog" aria-modal="true" hidden>
+    <button class="auth-screen-close" type="button" data-action="closeAuthScreen" aria-label="Close sign-in">×</button>
+    <button class="auth-intro-logo" type="button" data-action="enterAuth" aria-label="Continue to sign in">
+      <img src="images/quazar-logo.png" alt="Quazar">
+      <span class="auth-intro-copy">
+        <span class="auth-intro-kicker">A smarter kind of shopping</span>
+        <span class="auth-intro-quote">“Find the good stuff.<br>Leave the guesswork to us.”</span>
+        <span class="auth-intro-hint">Tap anywhere to get started <span aria-hidden="true">→</span></span>
+      </span>
+    </button>
+    <div class="auth-screen-shell">
+      <div class="auth-screen-brand">
+        <img src="images/quazar-logo.png" alt="">
+        <span class="auth-brand-kicker">QUAZAR · SMART SHOPPING</span>
+        <h1 id="authScreenTitle">Find your next<br><span>favorite thing.</span></h1>
+        <p>Sign in to explore thoughtful picks, build a budget-friendly bundle, and shop with smarter stock insights.</p>
+        <div class="auth-brand-note"><span></span> A calmer way to shop</div>
+      </div>
+      <div class="auth-screen-card">
+        <img class="auth-screen-wordmark" src="images/quazar-wordmark.png" alt="Quazar">
+        <div id="authScreenBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="announce">🚚 Free shipping over ₱2,000 &nbsp;·&nbsp; Use code <b>SAVE10</b> for 10% off &nbsp;·&nbsp; <b>FREESHIP</b> removes delivery fee</div>
+
+  <!-- ================= HEADER ================= -->
+  <header class="header">
+    <div class="container header-inner">
+      <a class="logo" href="#" data-nav="shop" aria-label="Quazar home"><img src="images/quazar-wordmark.png" alt="Quazar"></a>
+
+      <div class="search customer-only" id="searchBox">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="searchInput" type="search" placeholder="Search products…  press /" autocomplete="off" aria-label="Search products">
+        <div class="suggest" id="suggest"></div>
+      </div>
+
+      <div class="actions">
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
+          <svg class="ic sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="ic moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+        <button class="icon-btn customer-only" data-nav="wishlist" aria-label="Wishlist" title="Wishlist">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>
+          <span class="badge" id="wishCount" hidden>0</span>
+        </button>
+        <button class="icon-btn customer-only" id="cartBtn" data-action="openCart" aria-label="Open cart" title="Cart">
+          <svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L21 8H6"/></svg>
+          <span class="badge" id="cartCount" hidden>0</span>
+        </button>
+        <div class="auth-nav-actions" id="authNavActions">
+          <button class="btn ghost" id="loginBtn" data-action="openAuth">
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5M15 12H3"/></svg>
+            <span>Log in</span>
+          </button>
+          <button class="btn primary" id="signupBtn" data-action="openRegister">Sign up</button>
+        </div>
+        <button class="btn ghost account-btn" id="accountBtn" data-action="openAuth" hidden>Account</button>
+      </div>
+    </div>
+
+    <nav class="container tabs" id="tabs" aria-label="Main">
+      <button class="tab active customer-only" data-nav="shop"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h18l-1.5 12h-15L3 9Z"/><path d="M7 9a5 5 0 0 1 10 0M9 13v.01M15 13v.01"/></svg>Shop</button>
+      <button class="tab customer-only" data-nav="wishlist"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.6c0 5.1-8.8 11-8.8 11s-8.8-5.9-8.8-11A4.6 4.6 0 0 1 12 6.1a4.6 4.6 0 0 1 8.8 2.5Z"/></svg>Wishlist</button>
+      <button class="tab customer-only" data-nav="orders"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z"/><path d="m3.5 7.8 8.5 4.4 8.5-4.4M12 12.2V21M7.5 5.3l9 4.6"/></svg>My Orders</button>
+      <button class="tab customer-only" data-action="scrollBlog"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 1 4 17.5z"/><path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H20M8 7h8M8 10h8"/></svg>Journal</button>
+      <button class="tab admin-only" data-nav="admin" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>Admin Dashboard</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ================= SHOP VIEW ================= -->
+    <section id="view-shop" class="view active">
+      <div class="container">
+
+        <!-- Hero -->
+        <div class="hero">
+          <div class="blob b1"></div><div class="blob b2"></div>
+          <div class="hero-text">
+            <span class="pill">✨ New season · Smart picks</span>
+            <h1>Shop smarter.<br><span class="grad-text">Stocked right, always.</span></h1>
+            <p>Curated picks for the things people actually want next: smart tech, statement style, and home upgrades shaped by live demand and real-time stock.</p>
+            <div class="hero-cta">
+              <a href="#products" class="btn primary lg" data-action="scrollProducts">Start shopping →</a>
+              <button class="btn ghost lg" data-action="openAuth">Create account</button>
+            </div>
+            <div class="hero-stats">
+              <div><b>18+</b><span>Products</span></div>
+              <div><b>4.6★</b><span>Avg. rating</span></div>
+              <div><b>24/7</b><span>Support</span></div>
+            </div>
+          </div>
+          <div class="hero-visual" aria-hidden="true">
+            <div class="float f1"><img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&amp;fit=crop&amp;w=400&amp;q=80" alt=""></div>
+            <div class="float f2"><img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&amp;fit=crop&amp;w=400&amp;q=80" alt=""></div>
+            <div class="float f3"><img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&amp;fit=crop&amp;w=400&amp;q=80" alt=""></div>
+            <div class="float f4"><img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&amp;fit=crop&amp;w=400&amp;q=80" alt=""></div>
+            <div class="float f5"><img src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&amp;fit=crop&amp;w=400&amp;q=80" alt=""></div>
+          </div>
+        </div>
+
+        <!-- Perks -->
+        <div class="perks">
+          <div><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v11H3zM14 11h4l3 3v4h-7z"/><circle cx="7.5" cy="19" r="2"/><circle cx="17.5" cy="19" r="2"/><path d="M6 10h5"/></svg></span><div><b>Fast delivery</b><small>Standard or express</small></div></div>
+          <div><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg></span><div><b>Secure checkout</b><small>COD, GCash, card</small></div></div>
+          <div><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg></span><div><b>Easy returns</b><small>7-day return window</small></div></div>
+          <div><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 7v13"/><path d="M12 7H7.5a2.5 2.5 0 1 1 2.4-3.2L12 7Zm0 0h4.5a2.5 2.5 0 1 0-2.4-3.2L12 7Z"/></svg></span><div><b>Promo codes</b><small>SAVE10 · WELCOME5</small></div></div>
+        </div>
+
+        <!-- Stock-smart bundle builder -->
+        <section class="bundle-builder" aria-labelledby="bundleTitle">
+          <div class="bundle-intro">
+            <span class="pill">🧠 Stock-smart picks</span>
+            <h2 id="bundleTitle">Build a bundle for your budget</h2>
+            <p class="muted">Get a tailored mix of highly rated items that are in stock and stay within your budget.</p>
+          </div>
+          <div class="bundle-controls">
+            <label class="field"><span>Your budget (₱)</span><input id="bundleBudget" type="number" min="1" max="100000" step="100" value="5000"></label>
+            <label class="field"><span>Focus category</span><select id="bundleCategory"><option value="all">Any category</option></select></label>
+            <button class="btn primary" type="button" data-action="buildBundle">Build my bundle</button>
+          </div>
+          <div id="bundleResult" aria-live="polite"></div>
+        </section>
+
+        <!-- Flash sale -->
+        <div class="section-head">
+          <div><h2>⚡ Flash Sale</h2><p class="muted">Biggest discounts — ends in <b id="countdown" class="countdown">--:--:--</b></p></div>
+        </div>
+        <div class="flash" id="flashRow"></div>
+
+        <!-- Products -->
+        <div class="section-head" id="products">
+          <div><h2>All Products</h2><p class="muted" id="resultCount">—</p></div>
+          <div class="toolbar">
+            <button class="btn ghost filter-toggle" data-action="toggleFilters">⚙ Filters</button>
+            <select id="sortSelect" aria-label="Sort products">
+              <option value="featured">Featured</option>
+              <option value="best">Best selling</option>
+              <option value="price-asc">Price: low to high</option>
+              <option value="price-desc">Price: high to low</option>
+              <option value="rating">Top rated</option>
+              <option value="discount">Biggest discount</option>
+              <option value="newest">Newest</option>
+            </select>
+            <div class="seg" role="group" aria-label="Layout">
+              <button class="active" data-action="viewMode" data-mode="grid" aria-label="Grid view">▦</button>
+              <button data-action="viewMode" data-mode="list" aria-label="List view">☰</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="chips" id="catChips"></div>
+
+        <div class="shop-layout">
+          <aside class="filters" id="filters">
+            <div class="filter-block">
+              <h4>Categories</h4>
+              <div id="catList" class="cat-list"></div>
+            </div>
+            <div class="filter-block">
+              <h4>Max price <span class="muted" id="priceLabel">Any</span></h4>
+              <input type="range" id="priceRange" min="100" max="5000" step="100" value="5000">
+            </div>
+            <div class="filter-block">
+              <h4>Minimum rating</h4>
+              <div class="rate-chips" id="rateChips">
+                <button class="chip active" data-action="rate" data-rate="0">Any</button>
+                <button class="chip" data-action="rate" data-rate="4">4★+</button>
+                <button class="chip" data-action="rate" data-rate="4.5">4.5★+</button>
+              </div>
+            </div>
+            <label class="check"><input type="checkbox" id="inStock"> <span>In stock only</span></label>
+            <button class="btn ghost block" data-action="resetFilters">Reset filters</button>
+          </aside>
+
+          <div class="results">
+            <div class="grid" id="productGrid"></div>
+            <div class="center"><button class="btn ghost" id="loadMore" data-action="loadMore" hidden>Load more products</button></div>
+          </div>
+        </div>
+
+        <!-- Recently viewed -->
+        <div id="recentWrap" hidden>
+          <div class="section-head"><div><h2>🕘 Recently viewed</h2></div><button class="link" data-action="clearRecent">Clear</button></div>
+          <div class="grid small" id="recentGrid"></div>
+        </div>
+
+        <section class="journal" id="journal" aria-labelledby="journalTitle">
+          <div class="section-head journal-heading">
+            <div><span class="journal-kicker">THE QUAZAR JOURNAL</span><h2 id="journalTitle">Ideas for smarter shopping</h2><p class="muted">Helpful guides, fresh finds, and practical tips from our team.</p></div>
+            <a class="link" href="#journal">Explore the journal ↓</a>
+          </div>
+          <div class="journal-grid">
+            <article class="journal-card journal-featured">
+              <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&amp;fit=crop&amp;w=1000&amp;q=80" alt="Customer shopping online from a laptop">
+              <div class="journal-copy">
+                <span class="journal-category">SHOPPING GUIDE · 5 MIN READ</span>
+                <h3>How to shop online with confidence</h3>
+                <p>Simple ways to compare products, check the details, and make your next purchase feel right.</p>
+                <button class="link" type="button" data-action="openBlogArticle" data-article="confident-shopping">Read article →</button>
+              </div>
+            </article>
+            <article class="journal-card">
+              <img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&amp;fit=crop&amp;w=800&amp;q=80" alt="Thoughtfully arranged everyday products">
+              <div class="journal-copy">
+                <span class="journal-category">SMART PICKS · 4 MIN READ</span>
+                <h3>Build a useful bundle on any budget</h3>
+                <p>Plan around what you need first, then find items that work well together.</p>
+                <button class="link" type="button" data-action="openBlogArticle" data-article="budget-bundle">Read article →</button>
+              </div>
+            </article>
+            <article class="journal-card">
+              <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&amp;fit=crop&amp;w=800&amp;q=80" alt="A watch as an example of comparing product features">
+              <div class="journal-copy">
+                <span class="journal-category">PRODUCT TIPS · 3 MIN READ</span>
+                <h3>What to look for before you buy</h3>
+                <p>Use ratings, product descriptions, and stock information to choose with clarity.</p>
+                <button class="link" type="button" data-action="openBlogArticle" data-article="buying-checklist">Read article →</button>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ================= WISHLIST VIEW ================= -->
+    <section id="view-wishlist" class="view">
+      <div class="container">
+        <div class="page-head">
+          <div><h1>Your Wishlist</h1><p class="muted">Items you saved for later</p></div>
+          <button class="btn primary" data-action="wishToCart">Add all to cart</button>
+        </div>
+        <div class="grid" id="wishGrid"></div>
+      </div>
+    </section>
+
+    <!-- ================= ORDERS VIEW ================= -->
+    <section id="view-orders" class="view">
+      <div class="container narrow">
+        <div class="page-head"><div><h1>My Orders</h1><p class="muted">View the latest status of your purchases.</p></div></div>
+        <div id="ordersList"></div>
+      </div>
+    </section>
+
+    <!-- ================= SELLER VIEW ================= -->
+    <section id="view-seller" class="view">
+      <div class="container">
+        <div class="page-head">
+          <div><h1>Seller Dashboard</h1><p class="muted">Manage your shop, stock, and orders.</p></div>
+        </div>
+        <div id="sellerDashboard" class="metrics-grid"></div>
+      </div>
+    </section>
+
+    <!-- ================= RIDER VIEW ================= -->
+    <section id="view-rider" class="view">
+      <div class="container">
+        <div class="page-head">
+          <div><h1>Rider Dashboard</h1><p class="muted">Accept deliveries, track progress, and monitor earnings.</p></div>
+        </div>
+        <div id="riderDashboard" class="metrics-grid"></div>
+      </div>
+    </section>
+
+    <!-- ================= ADMIN VIEW ================= -->
+    <section id="view-admin" class="view">
+      <div class="container">
+        <div class="page-head">
+          <div><h1>Admin Dashboard</h1><p class="muted">Sales overview &amp; quantitative demand forecasting methods (demo data)</p></div>
+          <div class="head-actions">
+            <button class="btn ghost" data-action="exportCsv">⬇ Export forecast CSV</button>
+            <button class="btn primary" data-action="newProduct">+ Add product</button>
+          </div>
+        </div>
+
+        <div class="kpis" id="kpis"></div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div><h3>Sales report</h3><p class="muted small">Totals from saved orders</p></div>
+            <select id="salesRange" aria-label="Sales report date range">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="all">All time</option>
+            </select>
+          </div>
+          <div id="salesReport" class="kpis sales-report" aria-live="polite"></div>
+        </div>
+
+        <div class="admin-grid">
+          <div class="panel span-2">
+            <div class="panel-head">
+              <div><h3>Demand forecast</h3><p class="muted small" id="fcMeta"></p></div>
+              <div class="controls">
+                <select id="fcProduct" aria-label="Forecast product"></select>
+                <select id="fcMethod" aria-label="Quantitative forecasting method">
+                  <optgroup label="Quantitative time series">
+                    <option value="seasonal">Seasonal trend</option>
+                    <option value="moving-average">Moving average (7-day)</option>
+                    <option value="weighted-average">Weighted moving average (7-day)</option>
+                    <option value="exponential">Simple exponential smoothing</option>
+                    <option value="linear-trend">Linear trend</option>
+                  </optgroup>
+                  <optgroup label="Qualitative method">
+                    <option value="delphi">Delphi expert consensus (demo)</option>
+                  </optgroup>
+                  <optgroup label="Causal scenario">
+                    <option value="causal">Price &amp; promotion scenario</option>
+                  </optgroup>
+                  <optgroup label="Machine learning &amp; AI">
+                    <option value="knn">Machine learning: k-nearest neighbors</option>
+                    <option value="ensemble">AI-inspired model ensemble (demo)</option>
+                  </optgroup>
+                </select>
+                <select id="fcHorizon" aria-label="Forecast horizon">
+                  <option value="7">Next 7 days</option>
+                  <option value="14" selected>Next 14 days</option>
+                  <option value="30">Next 30 days</option>
+                </select>
+              </div>
+            </div>
+            <div class="forecast-method-options" id="fcMethodOptions">
+              <div class="forecast-option" data-method-options="delphi" hidden>
+                <b>Expert demand estimates</b>
+                <span class="muted small">Enter each panelist's expected demand change. The forecast uses their average.</span>
+                <div class="expert-estimates">
+                  <label>Panelist 1 (%)<input type="number" id="fcExpert1" min="-90" max="300" value="-5"></label>
+                  <label>Panelist 2 (%)<input type="number" id="fcExpert2" min="-90" max="300" value="0"></label>
+                  <label>Panelist 3 (%)<input type="number" id="fcExpert3" min="-90" max="300" value="5"></label>
+                </div>
+                <small class="muted">Illustrative estimates only; replace with actual expert input for research use.</small>
+              </div>
+              <div class="forecast-option" data-method-options="causal" hidden>
+                <b>What-if demand drivers</b>
+                <span class="muted small">Scenario assumptions, not coefficients fitted from historical transaction data.</span>
+                <div class="expert-estimates">
+                  <label>Price change (%)<input type="number" id="fcPriceChange" min="-90" max="100" value="0"></label>
+                  <label>Promotion demand lift (%)<input type="number" id="fcPromoLift" min="0" max="300" value="0"></label>
+                </div>
+                <small class="muted">Uses an illustrative price elasticity of −1.2 plus the entered promotion lift.</small>
+              </div>
+              <div class="forecast-option" data-method-options="ensemble" hidden>
+                <span class="muted small">A transparent average of the seasonal, moving-average, exponential-smoothing, linear-trend, and k-nearest-neighbors forecasts. This is an AI-inspired ensemble demonstration, not a trained AI service.</span>
+              </div>
+              <div class="forecast-option" data-method-options="knn" hidden>
+                <span class="muted small">Estimates demand from five historically similar days using recent demand lags and day of week. This machine-learning demo trains only on the platform's synthetic sales series.</span>
+              </div>
+            </div>
+            <div class="chart-wrap" id="chartWrap">
+              <canvas id="fcChart"></canvas>
+              <div class="chart-line" id="chartLine"></div>
+              <div class="chart-tip" id="chartTip"></div>
+            </div>
+            <div class="legend">
+              <span><i class="dot a"></i>Actual sales</span>
+              <span><i class="dot f"></i>Forecast</span>
+              <span><i class="dot band"></i>Confidence range</span>
+            </div>
+            <div class="forecast-insight" id="forecastInsight" aria-live="polite"></div>
+          </div>
+
+          <div class="panel">
+            <h3>Top sellers <span class="muted small">(last 30 days)</span></h3>
+            <div id="topSellers" class="bars"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div><h3>⚠ Reorder alerts</h3><p class="muted small">Stock compared with forecast demand for the selected horizon</p></div>
+          </div>
+          <div class="table-wrap"><table id="reorderTable"></table></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><div><h3>Products</h3><p class="muted small">Add, edit or remove items</p></div></div>
+          <div class="table-wrap"><table id="productTable"></table></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div><h3>Customer accounts</h3><p class="muted small">Search, block, or permanently delete customer accounts</p></div>
+            <input id="customerSearch" type="search" placeholder="Search customers…" aria-label="Search customer accounts">
+          </div>
+          <div class="table-wrap"><table id="customerTable"></table></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><div><h3>Customer feedback &amp; ratings</h3><p class="muted small">Product reviews submitted by customers</p></div></div>
+          <div class="table-wrap"><table id="customerReviewsTable"></table></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div><h3>Recent orders</h3><p class="muted small">Search orders and filter by status</p></div>
+            <div class="admin-table-filters">
+              <input id="adminOrderSearch" type="search" placeholder="Search order or customer…" aria-label="Search orders">
+              <select id="adminOrderStatusFilter" aria-label="Filter orders by status">
+                <option value="all">All statuses</option>
+                <option value="Packaging">Packaging</option>
+                <option value="Delivered">Delivered</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap"><table id="adminOrders"></table></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand"><img src="images/quazar-wordmark.png" alt="Quazar"><span>· E-Commerce Platform with Demand Forecasting</span></div>
+      <div class="muted small">Front-end prototype · data saved in your browser (localStorage) · no real payments</div>
+    </div>
+  </footer>
+
+  <!-- ================= CART DRAWER ================= -->
+  <div class="overlay" id="overlay" data-action="closeAll"></div>
+  <aside class="drawer" id="cartDrawer" aria-label="Shopping cart">
+    <div class="drawer-head">
+      <h3>Your cart <span class="muted" id="cartHeadCount"></span></h3>
+      <button class="icon-btn" data-action="closeCart" aria-label="Close cart">✕</button>
+    </div>
+    <div class="drawer-body" id="cartItems"></div>
+    <div class="drawer-foot" id="cartFoot"></div>
+  </aside>
+
+  <!-- ================= MODALS ================= -->
+  <div class="modal" id="modalQuick"><div class="modal-card wide"><button class="modal-close" data-action="closeModal" aria-label="Close">✕</button><div id="quickBody"></div></div></div>
+  <div class="modal" id="modalAuth"><div class="modal-card"><button class="modal-close" data-action="closeModal" aria-label="Close">✕</button><div id="authBody"></div></div></div>
+  <div class="modal" id="modalCheckout"><div class="modal-card wide"><button class="modal-close" data-action="closeModal" aria-label="Close">✕</button><div id="checkoutBody"></div></div></div>
+  <div class="modal" id="modalProduct"><div class="modal-card"><button class="modal-close" data-action="closeModal" aria-label="Close">✕</button><div id="productBody"></div></div></div>
+  <div class="modal" id="modalArticle"><div class="modal-card wide"><button class="modal-close" data-action="closeModal" aria-label="Close article">✕</button><div id="articleBody"></div></div></div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <button class="to-top" id="toTop" aria-label="Back to top">↑</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
